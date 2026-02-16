@@ -92,3 +92,19 @@ hesapla();
 
 </body>
 </html>
+manifest.json
+{
+  "name": "Didem & Uğur - Aile Birikim",
+  "short_name": "Aile Birikim",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

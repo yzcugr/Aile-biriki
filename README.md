@@ -4,107 +4,132 @@ index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Didem & Uğur - Aile Birikim</title>
-<link rel="manifest" href="manifest.json">
-<style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#111;
-  color:white;
-}
-header{
-  padding:20px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
-.card{
-  background:#1e1e1e;
-  margin:15px;
-  padding:15px;
-  border-radius:12px;
-}
-button{
-  background:gold;
-  border:none;
-  padding:10px;
-  border-radius:8px;
-  width:100%;
-  margin-top:10px;
-}
-input, select{
-  width:100%;
-  padding:8px;
-  margin-top:8px;
-  border-radius:6px;
-  border:none;
-}
-.green{color:#00ff88;}
-.red{color:#ff4d4d;}
-</style>
+    <meta charset="UTF-8">
+    <title>Birikim Takip</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>🌙 Didem & Uğur - Aile Birikim</header>
+<h1>Birikim Takip</h1>
 
 <div class="card">
-<h3>İşlem Ekle</h3>
-<select id="tur">
-<option>Gram Altın</option>
-<option>Çeyrek Altın</option>
-<option>Dolar</option>
-<option>Euro</option>
-</select>
-<input type="number" id="miktar" placeholder="Miktar">
-<input type="number" id="fiyat" placeholder="Alış Fiyatı">
-<button onclick="ekle()">Kaydet</button>
+    <h2>Bakiye: <span id="balance">0</span> ₺</h2>
 </div>
 
 <div class="card">
-<h3>Toplam Varlık</h3>
-<p id="toplam">0 TL</p>
+    <h3>Yeni Kayıt</h3>
+
+    <form id="form">
+        <select id="type">
+            <option value="income">Gelir</option>
+            <option value="expense">Gider</option>
+        </select>
+
+        <input type="number" id="amount" placeholder="Tutar" required>
+        <input type="text" id="category" placeholder="Kategori">
+        <input type="date" id="date" required>
+        <input type="text" id="note" placeholder="Not">
+
+        <button>Ekle</button>
+    </form>
 </div>
 
-<script>
-let veriler = JSON.parse(localStorage.getItem("veriler")) || [];
+<div class="card">
+    <h3>Kayıtlar</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tür</th>
+                <th>Tutar</th>
+                <th>Kategori</th>
+                <th>Tarih</th>
+                <th>Not</th>
+            </tr>
+        </thead>
+        <tbody id="list"></tbody>
+    </table>
+</div>
 
-function ekle(){
-  let tur = document.getElementById("tur").value;
-  let miktar = parseFloat(document.getElementById("miktar").value);
-  let fiyat = parseFloat(document.getElementById("fiyat").value);
-  let toplam = miktar * fiyat;
-  veriler.push({tur,miktar,fiyat,toplam});
-  localStorage.setItem("veriler",JSON.stringify(veriler));
-  hesapla();
-}
-
-function hesapla(){
-  let toplam=0;
-  veriler.forEach(v=>toplam+=v.toplam);
-  document.getElementById("toplam").innerText = toplam.toFixed(2)+" TL";
-}
-
-hesapla();
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
-manifest.json
-{
-  "name": "Didem & Uğur - Aile Birikim",
-  "short_name": "Aile Birikim",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#111111",
-  "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
+body {
+    font-family: Arial;
+    max-width: 700px;
+    margin: 40px auto;
+    background: #f4f6f8;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+}
+
+.income { color: green; }
+.expense { color: red; }
+const form = document.getElementById("form");
+const list = document.getElementById("list");
+const balanceEl = document.getElementById("balance");
+
+let transactions = [];
+
+form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const t = {
+        type: type.value,
+        amount: Number(amount.value),
+        category: category.value,
+        date: date.value,
+        note: note.value
+    };
+
+    transactions.push(t);
+    render();
+    form.reset();
+});
+
+function render() {
+    list.innerHTML = "";
+    let balance = 0;
+
+    transactions.forEach(t => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td class="${t.type}">
+                ${t.type === "income" ? "Gelir" : "Gider"}
+            </td>
+            <td>${t.amount} ₺</td>
+            <td>${t.category}</td>
+            <td>${t.date}</td>
+            <td>${t.note}</td>
+        `;
+
+        list.appendChild(row);
+
+        if (t.type === "income") balance += t.amount;
+        else balance -= t.amount;
+    });
+
+    balanceEl.textContent = balance;
 }
